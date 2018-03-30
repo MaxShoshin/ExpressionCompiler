@@ -4,6 +4,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{EE9F5EE3-2
 ProjectSection(SolutionItems) = preProject
 	..\LICENSE = ..\LICENSE
 	..\README.md = ..\README.md
+	GlobalSupressions.cs = GlobalSupressions.cs
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionCompilation", "ExpressionCompilation\ExpressionCompilation.csproj", "{83F9C7D3-12FE-4A47-9BBB-868343DDE596}"

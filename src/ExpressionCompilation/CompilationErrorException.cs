@@ -55,10 +55,10 @@ namespace ExpressionCompilation
 
             // HACK: To copy to output necessary dll (Microsoft.CodeAnalysis.CSharp.Workspaces)
             // otherwice we will get 'C# not supported exception'
-            var _ = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
+            var unused = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
 
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            _.ToString();
+            unused.ToString();
 
             var code = Formatter.Format(syntaxTree.GetRoot(), new AdhocWorkspace()).ToString();
             message.AppendLine()

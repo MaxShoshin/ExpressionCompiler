@@ -16,7 +16,8 @@ namespace ExpressionCompilation
     public sealed class ExpressionCompiler
     {
         private const string MethodName = "ExpressionMethod";
-        private const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
+
+        public const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
 
         [NotNull] private readonly List<ParameterDef> _parameters = new List<ParameterDef>();
         [NotNull] private readonly List<string> _usings = new List<string>();
@@ -92,8 +93,6 @@ namespace ExpressionCompilation
             return this;
         }
 
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Usings")]
-        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "usings")]
         [NotNull]
         public ExpressionCompiler WithUsings([NotNull] IEnumerable<string> usings)
         {
@@ -150,7 +149,7 @@ namespace ExpressionCompilation
             var syntaxTree = CreateSyntaxTree();
 
             var references = _referenceLocations
-                .Select(location => location.ToLower(CultureInfo.InvariantCulture))
+                .Select(location => location.ToUpperInvariant())
                 .Distinct()
                 .Where(File.Exists)
                 .Select(location => MetadataReference.CreateFromFile(location))
@@ -174,14 +173,15 @@ namespace ExpressionCompilation
                 memoryStream.Position = 0;
 
                 module = ModuleDefinition.ReadModule(memoryStream);
+
+
+                var method = module.Types
+                    .SelectMany(item => item.Methods)
+                    .Single(item => item.Name == MethodName);
+
+                var dynamicMethod = ILHelper.CopyToDynamicMethod(method, _ilLogger);
+                return dynamicMethod.CreateDelegate(delegateType);
             }
-
-            var method = module.Types
-                .SelectMany(item => item.Methods)
-                .Single(item => item.Name == MethodName);
-
-            var dynamicMethod = ILHelper.CopyToDynamicMethod(method, _ilLogger);
-            return dynamicMethod.CreateDelegate(delegateType);
         }
 
         [NotNull]
@@ -193,7 +193,6 @@ namespace ExpressionCompilation
                     .AddMembers(SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName("ExpressionCompilerNamespace"))
                         .AddMembers(SyntaxFactory.ClassDeclaration("ExpressionCompilerClass")
                             .AddMembers(CreateSyntaxTreeForMethod()))));
-
         }
 
         [NotNull]
@@ -225,7 +224,7 @@ namespace ExpressionCompilation
                 .AddParameterListParameters(_parameters
                     .Select(parameterDef => SyntaxFactory
                         .Parameter(SyntaxFactory.Identifier(parameterDef.Name))
-                        .WithType(SyntaxFactory.ParseTypeName(TypeFormatter.GetFullName(parameterDef.Type))))
+                        .WithType(SyntaxFactory.ParseTypeName(TypeFormatter.Format(parameterDef.Type))))
                     .ToArray())
                 .WithBody(SyntaxFactory.Block(SyntaxFactory.ReturnStatement(SyntaxFactory.ParseExpression(_expressionText))));
         }

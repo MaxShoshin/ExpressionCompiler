@@ -275,7 +275,6 @@ namespace ExpressionCompilation
             _ilGenerator.Emit(opCode, labels);
         }
 
-
         private void Emit(OpCode opCode, [NotNull] MethodInfo op)
         {
             _logger?.Invoke(_ilGenerator.ILOffset, opCode.Name, op);
