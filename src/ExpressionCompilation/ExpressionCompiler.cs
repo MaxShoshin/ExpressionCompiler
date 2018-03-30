@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Abacus.Amazonia.ExpressionCompilation;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,7 +13,6 @@ using Mono.Cecil;
 
 namespace ExpressionCompilation
 {
-    [PublicAPI]
     public sealed class ExpressionCompiler
     {
         private const string MethodName = "ExpressionMethod";
@@ -39,11 +38,7 @@ namespace ExpressionCompilation
             _expressionText = expressionText;
 
             _compilerOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                .WithOptimizationLevel(OptimizationLevel.Release)
-                .WithAllowUnsafe(false)
-                .WithDeterministic(false)
-                .WithOverflowChecks(false)
-                .WithConcurrentBuild(true);
+                .WithOptimizationLevel(OptimizationLevel.Release);
         }
 
         [NotNull]
@@ -60,7 +55,9 @@ namespace ExpressionCompilation
         [NotNull]
         public ExpressionCompiler WithILLogger([NotNull] Action<int, string, object> ilLogger)
         {
-            _ilLogger = ilLogger ?? throw new ArgumentNullException(nameof(ilLogger));
+            if (ilLogger == null) throw new ArgumentNullException(nameof(ilLogger));
+
+            _ilLogger = ilLogger;
 
             return this;
         }
@@ -95,6 +92,8 @@ namespace ExpressionCompilation
             return this;
         }
 
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "Usings")]
+        [SuppressMessage("Microsoft.Naming", "CA1704:IdentifiersShouldBeSpelledCorrectly", MessageId = "usings")]
         [NotNull]
         public ExpressionCompiler WithUsings([NotNull] IEnumerable<string> usings)
         {
@@ -142,7 +141,7 @@ namespace ExpressionCompilation
         [NotNull]
         public TDelegate Compile<TDelegate>()
         {
-            return (TDelegate) (object)Compile(typeof(TDelegate));
+            return (TDelegate)(object)Compile(typeof(TDelegate));
         }
 
         [NotNull]
@@ -151,9 +150,9 @@ namespace ExpressionCompilation
             var syntaxTree = CreateSyntaxTree();
 
             var references = _referenceLocations
-                .Select(Path.GetFullPath)
                 .Select(location => location.ToLower(CultureInfo.InvariantCulture))
                 .Distinct()
+                .Where(File.Exists)
                 .Select(location => MetadataReference.CreateFromFile(location))
                 .ToList();
 
@@ -194,6 +193,7 @@ namespace ExpressionCompilation
                     .AddMembers(SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName("ExpressionCompilerNamespace"))
                         .AddMembers(SyntaxFactory.ClassDeclaration("ExpressionCompilerClass")
                             .AddMembers(CreateSyntaxTreeForMethod()))));
+
         }
 
         [NotNull]
@@ -234,8 +234,11 @@ namespace ExpressionCompilation
         {
             public ParameterDef([NotNull] string name, [NotNull] Type type)
             {
-                Name = name ?? throw new ArgumentNullException(nameof(name));
-                Type = type ?? throw new ArgumentNullException(nameof(type));
+                if (name == null) throw new ArgumentNullException(nameof(name));
+                if (type == null) throw new ArgumentNullException(nameof(type));
+
+                Name = name;
+                Type = type;
             }
 
             [NotNull] public string Name { get; }

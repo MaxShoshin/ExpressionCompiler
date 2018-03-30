@@ -13,15 +13,17 @@ namespace ExpressionCompilation
         {
             if (typeRef == null) throw new ArgumentNullException(nameof(typeRef));
 
-            var typeName = typeRef.FullName;
-            if (typeName.IndexOf('/') != -1)
+            if (typeRef is GenericInstanceType genericType)
             {
-                typeName = typeName.Replace("/", "+");
+                var mainType = GetRuntimeType(genericType.ElementType);
+
+                return mainType.MakeGenericType(genericType.GenericArguments.Select(GetRuntimeType).ToArray());
             }
+
+            var typeName = typeRef.FullName.Replace("/", "+");
 
             var moduleDefinition = typeRef.Scope as ModuleDefinition;
             string assemblyFullName;
-
             if (moduleDefinition != null)
             {
                 assemblyFullName = moduleDefinition.Assembly.FullName;

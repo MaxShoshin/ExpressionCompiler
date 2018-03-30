@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Formatter = Microsoft.CodeAnalysis.Formatting.Formatter;
 
-namespace Abacus.Amazonia.ExpressionCompilation
+namespace ExpressionCompilation
 {
     [Serializable]
     public sealed class CompilationErrorException : Exception
@@ -17,20 +17,23 @@ namespace Abacus.Amazonia.ExpressionCompilation
         {
         }
 
-        public CompilationErrorException(string message) : base(message)
+        public CompilationErrorException(string message)
+            : base(message)
         {
         }
 
         public CompilationErrorException([NotNull] EmitResult emitResult, [NotNull] SyntaxTree syntaxTree)
-            :this(CreateCompilationErrorMessage(emitResult, syntaxTree))
+            : this(CreateCompilationErrorMessage(emitResult, syntaxTree))
         {
         }
 
-        public CompilationErrorException(string message, Exception innerException) : base(message, innerException)
+        public CompilationErrorException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 
-        private CompilationErrorException([NotNull] SerializationInfo info, StreamingContext context) : base(info, context)
+        private CompilationErrorException([NotNull] SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
 
@@ -53,6 +56,7 @@ namespace Abacus.Amazonia.ExpressionCompilation
             // HACK: To copy to output necessary dll (Microsoft.CodeAnalysis.CSharp.Workspaces)
             // otherwice we will get 'C# not supported exception'
             var _ = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
+
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             _.ToString();
 
