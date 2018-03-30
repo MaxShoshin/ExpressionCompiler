@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using ExpressionCompilation.Tests.Infrastructure;
+using ExpressionCompilation.Tests.TestData;
 using JetBrains.Annotations;
 using Xunit;
 
 namespace ExpressionCompilation.Tests
 {
-    public sealed class FilterExpressionExtensionsTest
+    public sealed class SimpleExpressionTest
     {
         private static readonly IReadOnlyList<Position> DataSource = new[]
         {
@@ -92,7 +94,7 @@ namespace ExpressionCompilation.Tests
             }
             catch (CompilationErrorException ex)
             {
-                Assert.Contains("'NotExitingProperty'", ex.ToString());
+                Assert.Contains("'NotExitingProperty'", ex.ToString(), StringComparison.Ordinal);
             }
         }
 
@@ -171,7 +173,7 @@ namespace ExpressionCompilation.Tests
                 .WithParameter("it", typeof(Position))
                 .WithReference(Assembly.GetExecutingAssembly())
                 .WithUsing("System")
-                .WithUsing("ExpressionCompilation.Tests")
+                .WithUsing("ExpressionCompilation.Tests.TestData")
                 .Returns(typeof(bool))
                 .Compile<Func<Position, bool>>();
         }
@@ -194,31 +196,6 @@ namespace ExpressionCompilation.Tests
             protected override void Stop()
             {
             }
-        }
-
-        internal sealed class Position
-        {
-            public Position(int id, PositionState state, DateTime updated, string note)
-            {
-                Id = id;
-                State = state;
-                Updated = updated;
-                Note = note;
-            }
-
-            [UsedImplicitly] public int Id { get; private set; }
-
-            [UsedImplicitly] public PositionState State { get; }
-
-            [UsedImplicitly] public DateTime Updated { get; }
-
-            [UsedImplicitly] public string Note { get; }
-        }
-
-        internal enum PositionState
-        {
-            Deleted = 0,
-            Active = 1
         }
     }
 }

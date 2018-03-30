@@ -4,10 +4,12 @@
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DocumentationFile>bin\Debug\netstandard2.0\ExpressionCompilation.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DocumentationFile>bin\Release\netstandard2.0\ExpressionCompilation.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
@@ -24,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\GlobalSupressions.cs">
-      <Link>GlobalSupressions.cs</Link>
+      <Link>Properties\GlobalSupressions.cs</Link>
     </Compile>
   </ItemGroup>
 </Project>

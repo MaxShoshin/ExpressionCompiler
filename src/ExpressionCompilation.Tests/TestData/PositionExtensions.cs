@@ -1,11 +1,11 @@
 ﻿using JetBrains.Annotations;
 
-namespace ExpressionCompilation.Tests
+namespace ExpressionCompilation.Tests.TestData
 {
     [UsedImplicitly]
     internal static class PositionExtensions
     {
-        public static int GetId(this FilterExpressionExtensionsTest.Position position)
+        public static int GetId([NotNull] this Position position)
         {
             return position.Id;
         }

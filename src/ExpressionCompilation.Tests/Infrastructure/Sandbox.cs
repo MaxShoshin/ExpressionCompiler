@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace ExpressionCompilation.Tests
+namespace ExpressionCompilation.Tests.Infrastructure
 {
-    public abstract class Sandbox : MarshalByRefObject
+    internal abstract class Sandbox : MarshalByRefObject
     {
         [NotNull]
         public static IDisposable Create<T>()
@@ -15,6 +15,7 @@ namespace ExpressionCompilation.Tests
         }
 
         protected abstract void Start();
+
         protected abstract void Stop();
 
         [NotNull]
@@ -36,8 +37,15 @@ namespace ExpressionCompilation.Tests
             {
                 var assemblyName = typeof(T).Assembly.FullName;
 
-                host = (T)domain.CreateInstanceAndUnwrap(assemblyName, typeof(T).FullName,
-                    false, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, null, null, null);
+                host = (T)domain.CreateInstanceAndUnwrap(
+                    assemblyName,
+                    typeof(T).FullName,
+                    false,
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    null,
+                    null,
+                    null);
 
                 domain.UnhandledException += Domain_UnhandledException;
                 host.Start();
@@ -75,11 +83,6 @@ namespace ExpressionCompilation.Tests
                 _domain = domain;
             }
 
-            public void Dispose()
-            {
-                UnloadDomain(_box, _domain);
-            }
-
             public static void UnloadDomain([CanBeNull] Sandbox box, [CanBeNull] AppDomain domain)
             {
                 if (box != null)
@@ -114,6 +117,11 @@ namespace ExpressionCompilation.Tests
                         Trace.TraceError(ex.ToString());
                     }
                 }
+            }
+
+            public void Dispose()
+            {
+                UnloadDomain(_box, _domain);
             }
         }
     }

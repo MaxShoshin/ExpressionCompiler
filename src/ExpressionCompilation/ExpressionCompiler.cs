@@ -15,9 +15,9 @@ namespace ExpressionCompilation
 {
     public sealed class ExpressionCompiler
     {
-        private const string MethodName = "ExpressionMethod";
-
         public const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
+
+        private const string MethodName = "ExpressionMethod";
 
         [NotNull] private readonly List<ParameterDef> _parameters = new List<ParameterDef>();
         [NotNull] private readonly List<string> _usings = new List<string>();
@@ -173,7 +173,6 @@ namespace ExpressionCompilation
                 memoryStream.Position = 0;
 
                 module = ModuleDefinition.ReadModule(memoryStream);
-
 
                 var method = module.Types
                     .SelectMany(item => item.Methods)

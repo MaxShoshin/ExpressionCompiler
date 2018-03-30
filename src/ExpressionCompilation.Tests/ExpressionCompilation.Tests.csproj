@@ -21,7 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\GlobalSupressions.cs">
-      <Link>GlobalSupressions.cs</Link>
+      <Link>Properties\GlobalSupressions.cs</Link>
     </Compile>
   </ItemGroup>
 </Project>
