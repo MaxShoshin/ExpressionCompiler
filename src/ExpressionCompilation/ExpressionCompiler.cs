@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +14,6 @@ namespace ExpressionCompilation
     public sealed class ExpressionCompiler
     {
         public const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
-
         private const string MethodName = "ExpressionMethod";
 
         [NotNull] private readonly List<ParameterDef> _parameters = new List<ParameterDef>();
@@ -26,20 +23,18 @@ namespace ExpressionCompilation
 
         [NotNull] private Type _returnType = typeof(void);
         [NotNull] private CSharpCompilationOptions _compilerOptions;
-        [CanBeNull] private Action<int, string, object> _ilLogger;
 
         public ExpressionCompiler([NotNull] string expressionText)
         {
             if (expressionText == null) throw new ArgumentNullException(nameof(expressionText));
 
-            _referenceLocations.Add(typeof(object).Assembly.Location);
-            _referenceLocations.Add(typeof(Uri).Assembly.Location);
-            _referenceLocations.Add(typeof(HashSet<>).Assembly.Location);
-
             _expressionText = expressionText;
-
             _compilerOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithOptimizationLevel(OptimizationLevel.Release);
+
+            WithReference(typeof(object).Assembly);
+            WithReference(typeof(Uri).Assembly);
+            WithReference(typeof(HashSet<>).Assembly);
         }
 
         [NotNull]
@@ -49,16 +44,6 @@ namespace ExpressionCompilation
             if (parameterType == null) throw new ArgumentNullException(nameof(parameterType));
 
             _parameters.Add(new ParameterDef(name.Trim(), parameterType));
-
-            return this;
-        }
-
-        [NotNull]
-        public ExpressionCompiler WithILLogger([NotNull] Action<int, string, object> ilLogger)
-        {
-            if (ilLogger == null) throw new ArgumentNullException(nameof(ilLogger));
-
-            _ilLogger = ilLogger;
 
             return this;
         }
@@ -84,34 +69,12 @@ namespace ExpressionCompilation
         }
 
         [NotNull]
-        public ExpressionCompiler WithUsing([NotNull] string usingItem)
+        public ExpressionCompiler WithUsing([NotNull] Type usingType)
         {
-            if (usingItem == null) throw new ArgumentNullException(nameof(usingItem));
+            if (usingType == null) throw new ArgumentNullException(nameof(usingType));
+            if (usingType.Namespace == null) throw new ArgumentException("Using type has null namespace.", nameof(usingType));
 
-            _usings.Add(usingItem);
-
-            return this;
-        }
-
-        [NotNull]
-        public ExpressionCompiler WithUsings([NotNull] IEnumerable<string> usings)
-        {
-            if (usings == null) throw new ArgumentNullException(nameof(usings));
-
-            foreach (var import in usings)
-            {
-                WithUsing(import);
-            }
-
-            return this;
-        }
-
-        [NotNull]
-        public ExpressionCompiler WithReference([NotNull] string assemblyLocation)
-        {
-            if (assemblyLocation == null) throw new ArgumentNullException(nameof(assemblyLocation));
-
-            _referenceLocations.Add(assemblyLocation);
+            _usings.Add(usingType.Namespace);
 
             return this;
         }
@@ -121,26 +84,9 @@ namespace ExpressionCompilation
         {
             if (assembly == null) throw new ArgumentNullException(nameof(assembly));
 
-            return WithReference(assembly.Location);
-        }
-
-        [NotNull]
-        public ExpressionCompiler WithReferences([NotNull] IReadOnlyList<Assembly> assemblies)
-        {
-            if (assemblies == null) throw new ArgumentNullException(nameof(assemblies));
-
-            foreach (var assembly in assemblies)
-            {
-                WithReference(assembly);
-            }
+            _referenceLocations.Add(assembly.Location);
 
             return this;
-        }
-
-        [NotNull]
-        public TDelegate Compile<TDelegate>()
-        {
-            return (TDelegate)(object)Compile(typeof(TDelegate));
         }
 
         [NotNull]
@@ -149,7 +95,6 @@ namespace ExpressionCompilation
             var syntaxTree = CreateSyntaxTree();
 
             var references = _referenceLocations
-                .Select(location => location.ToUpperInvariant())
                 .Distinct()
                 .Where(File.Exists)
                 .Select(location => MetadataReference.CreateFromFile(location))
@@ -160,7 +105,6 @@ namespace ExpressionCompilation
                 .WithOptions(_compilerOptions)
                 .AddSyntaxTrees(syntaxTree);
 
-            ModuleDefinition module;
             using (var memoryStream = new MemoryStream())
             {
                 var emitResult = compilation.Emit(memoryStream);
@@ -172,13 +116,13 @@ namespace ExpressionCompilation
 
                 memoryStream.Position = 0;
 
-                module = ModuleDefinition.ReadModule(memoryStream);
+                var module = ModuleDefinition.ReadModule(memoryStream);
 
                 var method = module.Types
                     .SelectMany(item => item.Methods)
                     .Single(item => item.Name == MethodName);
 
-                var dynamicMethod = ILHelper.CopyToDynamicMethod(method, _ilLogger);
+                var dynamicMethod = ILCopier.CopyToDynamicMethod(method);
                 return dynamicMethod.CreateDelegate(delegateType);
             }
         }
@@ -186,9 +130,14 @@ namespace ExpressionCompilation
         [NotNull]
         private SyntaxTree CreateSyntaxTree()
         {
+            var usingDirectives = _usings
+                .Distinct()
+                .Select(item => SyntaxFactory.UsingDirective(CreateUsingName(item)))
+                .ToArray();
+
             return SyntaxFactory.SyntaxTree(
                 SyntaxFactory.CompilationUnit()
-                    .AddUsings(_usings.Select(item => SyntaxFactory.UsingDirective(CreateUsingName(item))).ToArray())
+                    .AddUsings(usingDirectives)
                     .AddMembers(SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName("ExpressionCompilerNamespace"))
                         .AddMembers(SyntaxFactory.ClassDeclaration("ExpressionCompilerClass")
                             .AddMembers(CreateSyntaxTreeForMethod()))));

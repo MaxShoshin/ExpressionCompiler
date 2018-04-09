@@ -169,13 +169,13 @@ namespace ExpressionCompilation.Tests
         [NotNull]
         private static Func<Position, bool> CreatePredicate([NotNull] string condition)
         {
-            return new ExpressionCompiler(condition)
+            return (Func<Position, bool>)new ExpressionCompiler(condition)
                 .WithParameter("it", typeof(Position))
                 .WithReference(Assembly.GetExecutingAssembly())
-                .WithUsing("System")
-                .WithUsing("ExpressionCompilation.Tests.TestData")
+                .WithUsing(typeof(DateTime))
+                .WithUsing(typeof(Position))
                 .Returns(typeof(bool))
-                .Compile<Func<Position, bool>>();
+                .Compile(typeof(Func<Position, bool>));
         }
 
         internal sealed class AssemblyCounter : Sandbox
