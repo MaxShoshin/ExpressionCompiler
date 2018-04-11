@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{EE9F5EE3-24A1-45EF-B9B9-1D1733E33BAA}"
+ProjectSection(SolutionItems) = preProject
+	..\LICENSE = ..\LICENSE
+	..\README.md = ..\README.md
+	GlobalSupressions.cs = GlobalSupressions.cs
+EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionCompilation", "ExpressionCompilation\ExpressionCompilation.csproj", "{83F9C7D3-12FE-4A47-9BBB-868343DDE596}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressionCompilation.Tests", "ExpressionCompilation.Tests\ExpressionCompilation.Tests.csproj", "{027B4B14-165C-450B-87F0-31B623EB44B3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{83F9C7D3-12FE-4A47-9BBB-868343DDE596}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83F9C7D3-12FE-4A47-9BBB-868343DDE596}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83F9C7D3-12FE-4A47-9BBB-868343DDE596}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83F9C7D3-12FE-4A47-9BBB-868343DDE596}.Release|Any CPU.Build.0 = Release|Any CPU
+		{027B4B14-165C-450B-87F0-31B623EB44B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{027B4B14-165C-450B-87F0-31B623EB44B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{027B4B14-165C-450B-87F0-31B623EB44B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{027B4B14-165C-450B-87F0-31B623EB44B3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
