@@ -18,20 +18,23 @@ namespace ExpressionCompilation
         {
         }
 
-        public CompilationErrorException(string message) : base(message)
+        public CompilationErrorException(string message)
+            : base(message)
         {
         }
 
         public CompilationErrorException([NotNull] EmitResult emitResult, [NotNull] SyntaxTree syntaxTree)
-            :this(CreateCompilationErrorMessage(emitResult, syntaxTree))
+            : this(CreateCompilationErrorMessage(emitResult, syntaxTree))
         {
         }
 
-        public CompilationErrorException(string message, Exception innerException) : base(message, innerException)
+        public CompilationErrorException(string message, Exception innerException)
+            : base(message, innerException)
         {
         }
 
-        private CompilationErrorException([NotNull] SerializationInfo info, StreamingContext context) : base(info, context)
+        private CompilationErrorException([NotNull] SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
 
@@ -64,13 +67,14 @@ namespace ExpressionCompilation
 
         // HACK: To copy to output necessary dll (Microsoft.CodeAnalysis.CSharp.Workspaces)
         // otherwice we will get 'C# not supported exception'
-        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses")]
+        [SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "Just hack")]
         [UsedImplicitly]
         private sealed class Dummy
         {
             public Dummy()
             {
                 var unused = typeof(Microsoft.CodeAnalysis.CSharp.Formatting.CSharpFormattingOptions);
+
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 unused.ToString();
             }

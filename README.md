@@ -10,7 +10,7 @@ ExpressionCompiler creates DynamicMethod based on your expression without loadin
 domain. DynamicMethod can be garbage collected as usual class when it no longer used.
 
 Usage:
-'''
+```C#
 Func<int> calculator = new ExpressionCompiler("1 + 1").Returns(typeof(int)).Compile<Func<int>>();
 Console.WriteLine(calculator.Invoke()); // Prints 2
-'''
+```

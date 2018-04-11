@@ -110,7 +110,7 @@ namespace ExpressionCompilation
         }
 
         [NotNull]
-        private static Type GetRuntimeType([NotNull]  TypeReference typeRef)
+        private static Type GetRuntimeType([NotNull] TypeReference typeRef)
         {
             if (typeRef == null) throw new ArgumentNullException(nameof(typeRef));
 
@@ -145,7 +145,8 @@ namespace ExpressionCompilation
                 throw new InvalidOperationException(
                     string.Format(
                         CultureInfo.InvariantCulture,
-                        "Type reference {0} not found in loaded assemblies.", typeRef.FullName));
+                        "Type reference {0} not found in loaded assemblies.",
+                        typeRef.FullName));
             }
 
             return type;
@@ -187,7 +188,7 @@ namespace ExpressionCompilation
             // https://github.com/jbevain/cecil/blob/master/Mono.Cecil.Cil/CodeReader.cs
 
             // Double dispatching to avoid a lot of ifs by operand types.
-            Emit(opCode, (dynamic) operand);
+            Emit(opCode, (dynamic)operand);
         }
 
         private void Emit(OpCode opCode, [NotNull] VariableDefinition variableDefinition)
@@ -281,23 +282,23 @@ namespace ExpressionCompilation
             _ilGenerator.Emit(opCode, op);
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "opCode")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "opCode", Justification = "Used in dinamic invoke")]
         [UsedImplicitly]
         private void Emit(OpCode opCode, [NotNull] object operand)
         {
             throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Operand with type {0} is not supported.", operand.GetType().Name));
         }
 
-        [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "IMetadataTokenProvider")]
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "opCode")]
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "metadataTokenProvider")]
+        [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "IMetadataTokenProvider", Justification = "Reviewed")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "opCode", Justification = "Used in dinamic invoke")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "metadataTokenProvider", Justification = "Used in dinamic invoke")]
         [UsedImplicitly]
         private void Emit(OpCode opCode, IMetadataTokenProvider metadataTokenProvider)
         {
             throw new NotSupportedException("IMetadataTokenProvider instructions (Ldtoken) are not supported.");
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "callSite")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "callSite", Justification = "Used in dinamic invoke")]
         [UsedImplicitly]
         private void Emit(OpCode opCode, CallSite callSite)
         {
