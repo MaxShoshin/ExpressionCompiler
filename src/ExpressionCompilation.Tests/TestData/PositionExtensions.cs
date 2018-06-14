@@ -3,7 +3,7 @@
 namespace ExpressionCompilation.Tests.TestData
 {
     [UsedImplicitly]
-    internal static class PositionExtensions
+    public static class PositionExtensions
     {
         public static int GetId([NotNull] this Position position)
         {

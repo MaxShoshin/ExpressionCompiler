@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using ExpressionCompilation.Tests.Infrastructure;
 using ExpressionCompilation.Tests.TestData;
+using FluentAssertions;
 using JetBrains.Annotations;
 using Xunit;
 
@@ -144,6 +145,13 @@ namespace ExpressionCompilation.Tests
             }
 
             AssertFilter(expression.ToString());
+        }
+
+        [Fact]
+        public void SimpleExample()
+        {
+            Func<int> calculator = new ExpressionCompiler("1 + 1").Returns(typeof(int)).Compile<Func<int>>();
+            calculator.Invoke().Should().Be(2);
         }
 
         [Fact]

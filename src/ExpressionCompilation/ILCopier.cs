@@ -59,7 +59,7 @@ namespace ExpressionCompilation
             foreach (var code in codeValues)
             {
                 // Not support such instruction
-                if (code == Code.No || code == Code.Calli || code == Code.Ldtoken)
+                if (code == Code.No || code == Code.Calli)
                 {
                     continue;
                 }
