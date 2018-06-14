@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace ExpressionCompilation.Tests.TestData
 {
-    internal sealed class Position
+    public sealed class Position
     {
         public Position(int id, PositionState state, DateTime updated, string note)
         {

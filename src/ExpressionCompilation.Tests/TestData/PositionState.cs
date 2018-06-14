@@ -1,6 +1,6 @@
 ﻿namespace ExpressionCompilation.Tests.TestData
 {
-    internal enum PositionState
+    public enum PositionState
     {
         Deleted = 0,
         Active = 1

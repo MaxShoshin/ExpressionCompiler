@@ -14,6 +14,7 @@ namespace ExpressionCompilation
     public sealed class ExpressionCompiler
     {
         public const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
+
         private const string MethodName = "ExpressionMethod";
 
         [NotNull] private readonly List<ParameterDef> _parameters = new List<ParameterDef>();
@@ -29,6 +30,7 @@ namespace ExpressionCompilation
             if (expressionText == null) throw new ArgumentNullException(nameof(expressionText));
 
             _expressionText = expressionText;
+
             _compilerOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithOptimizationLevel(OptimizationLevel.Release);
 
@@ -87,6 +89,13 @@ namespace ExpressionCompilation
             _referenceLocations.Add(assembly.Location);
 
             return this;
+        }
+
+        [NotNull]
+        public TDelegate Compile<TDelegate>()
+            where TDelegate : class // Delegate
+        {
+            return (TDelegate)(object)Compile(typeof(TDelegate));
         }
 
         [NotNull]
