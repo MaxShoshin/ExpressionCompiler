@@ -19,14 +19,16 @@ namespace ExpressionCompilation
         [NotNull] private static readonly IReadOnlyDictionary<Code, OpCode> OpCodesMapping = CreateOpCodesMapping();
 
         [NotNull] private readonly ILGenerator _ilGenerator;
+        private readonly TypeReferenceMapper _typeMapper;
+        private readonly MethodReferenceMapper _methodMapper;
         [NotNull] private readonly Dictionary<int, Label> _labels = new Dictionary<int, Label>();
         [NotNull] private readonly Dictionary<int, LocalBuilder> _variables = new Dictionary<int, LocalBuilder>();
 
-        private ILCopier([NotNull] ILGenerator ilGenerator)
+        private ILCopier([NotNull] ILGenerator ilGenerator, [NotNull] TypeReferenceMapper typeMapper, [NotNull] MethodReferenceMapper methodMapper)
         {
-            if (ilGenerator == null) throw new ArgumentNullException(nameof(ilGenerator));
-
-            _ilGenerator = ilGenerator;
+            _ilGenerator = ilGenerator ?? throw new ArgumentNullException(nameof(ilGenerator));
+            _typeMapper = typeMapper ?? throw new ArgumentNullException(nameof(typeMapper));
+            _methodMapper = methodMapper ?? throw new ArgumentNullException(nameof(methodMapper));
         }
 
         [NotNull]
@@ -34,17 +36,20 @@ namespace ExpressionCompilation
         {
             if (method == null) throw new ArgumentNullException(nameof(method));
 
+            var typeMapper = new TypeReferenceMapper();
+            var methodMapper = new MethodReferenceMapper(typeMapper);
+
             var dynamicMethod = new DynamicMethod(
                 method.Name,
-                GetRuntimeType(method.ReturnType),
-                method.Parameters.Select(param => GetRuntimeType(param.ParameterType)).ToArray(),
+                typeMapper.GetRuntimeType(method.ReturnType),
+                method.Parameters.Select(param => typeMapper.GetRuntimeType(param.ParameterType)).ToArray(),
                 true);
 
             dynamicMethod.InitLocals = method.Body.InitLocals;
 
             var ilGenerator = dynamicMethod.GetILGenerator();
 
-            var copier = new ILCopier(ilGenerator);
+            var copier = new ILCopier(ilGenerator, typeMapper, methodMapper);
             copier.CopyFrom(method);
 
             return dynamicMethod;
@@ -59,7 +64,9 @@ namespace ExpressionCompilation
             foreach (var code in codeValues)
             {
                 // Not support such instruction
-                if (code == Code.No || code == Code.Calli)
+                // These instructions are not supported also: code == Code.Calli
+                // there is no skip here for it as we would like to get exception with details
+                if (code == Code.No || code == Code.Ldtoken)
                 {
                     continue;
                 }
@@ -109,51 +116,13 @@ namespace ExpressionCompilation
             return opCode;
         }
 
-        [NotNull]
-        private static Type GetRuntimeType([NotNull] TypeReference typeRef)
-        {
-            if (typeRef == null) throw new ArgumentNullException(nameof(typeRef));
-
-            var genericType = typeRef as GenericInstanceType;
-            if (genericType != null)
-            {
-                var mainType = GetRuntimeType(genericType.ElementType);
-
-                return mainType.MakeGenericType(genericType.GenericArguments.Select(GetRuntimeType).ToArray());
-            }
-
-            var typeName = typeRef.FullName.Replace("/", "+");
-
-            var moduleDefinition = typeRef.Scope as ModuleDefinition;
-            string assemblyFullName;
-            if (moduleDefinition != null)
-            {
-                assemblyFullName = moduleDefinition.Assembly.FullName;
-            }
-            else
-            {
-                assemblyFullName = ((AssemblyNameReference)typeRef.Scope).FullName;
-            }
-
-            var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                .First(asm => asm.FullName == assemblyFullName);
-
-            var type = assembly.GetType(typeName, true);
-
-            if (type == null)
-            {
-                throw new InvalidOperationException(
-                    string.Format(
-                        CultureInfo.InvariantCulture,
-                        "Type reference {0} not found in loaded assemblies.",
-                        typeRef.FullName));
-            }
-
-            return type;
-        }
-
         private void CopyFrom([NotNull] MethodDefinition fromMethod)
         {
+            if (fromMethod.Body.HasExceptionHandlers)
+            {
+                throw new NotSupportedException("Try-catch-finally construction are not supported yet.");
+            }
+
             foreach (var instruction in fromMethod.Body.Instructions)
             {
                 _labels.Add(instruction.Offset, _ilGenerator.DefineLabel());
@@ -161,7 +130,7 @@ namespace ExpressionCompilation
 
             foreach (var variable in fromMethod.Body.Variables)
             {
-                _variables.Add(variable.Index, _ilGenerator.DeclareLocal(GetRuntimeType(variable.VariableType), variable.IsPinned));
+                _variables.Add(variable.Index, _ilGenerator.DeclareLocal(_typeMapper.GetRuntimeType(variable.VariableType), variable.IsPinned));
             }
 
             foreach (var instruction in fromMethod.Body.Instructions)
@@ -214,41 +183,28 @@ namespace ExpressionCompilation
 
         private void Emit(OpCode opCode, [NotNull] TypeReference typeReference)
         {
-            var type = GetRuntimeType(typeReference);
+            var type = _typeMapper.GetRuntimeType(typeReference);
             _ilGenerator.Emit(opCode, type);
         }
 
         private void Emit(OpCode opCode, [NotNull] FieldReference fieldReference)
         {
-            var type = GetRuntimeType(fieldReference.DeclaringType);
+            var type = _typeMapper.GetRuntimeType(fieldReference.DeclaringType);
             var field = type.GetField(fieldReference.Name);
 
             _ilGenerator.Emit(opCode, field);
         }
 
-        private void Emit(OpCode opCode, [NotNull] MethodReference methodRefernce)
+        private void Emit(OpCode opCode, [NotNull] MethodReference methodReference)
         {
-            var type = GetRuntimeType(methodRefernce.DeclaringType);
-            var parameterTypes = methodRefernce.Parameters.Select(param => GetRuntimeType(param.ParameterType)).ToArray();
-
-            if (methodRefernce.Name == Ctor)
+            if (methodReference.Name == Ctor)
             {
-                var constructor = type.GetConstructor(parameterTypes);
-                if (constructor == null)
-                {
-                    throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Constructor {0} not found", methodRefernce.ToString()));
-                }
-
-                _ilGenerator.Emit(opCode, constructor);
+                var constructorInfo = _methodMapper.GetConstructor(methodReference);
+                _ilGenerator.Emit(opCode, constructorInfo);
                 return;
             }
 
-            var method = type.GetMethod(methodRefernce.Name, parameterTypes);
-            if (method == null)
-            {
-                throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Method: {0} not found", methodRefernce.ToString()));
-            }
-
+            var method = _methodMapper.GetMethod(methodReference);
             _ilGenerator.Emit(opCode, method);
         }
 
@@ -282,23 +238,13 @@ namespace ExpressionCompilation
             _ilGenerator.Emit(opCode, op);
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "opCode", Justification = "Used in dinamic invoke")]
         [UsedImplicitly]
         private void Emit(OpCode opCode, [NotNull] object operand)
         {
-            throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Operand with type {0} is not supported.", operand.GetType().Name));
+            throw new NotSupportedException(string.Format(CultureInfo.InvariantCulture, "Operand with type {0} is not supported. Instruction: {1}", operand.GetType().Name, opCode));
         }
 
-        [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "IMetadataTokenProvider", Justification = "Reviewed")]
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "opCode", Justification = "Used in dinamic invoke")]
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "metadataTokenProvider", Justification = "Used in dinamic invoke")]
-        [UsedImplicitly]
-        private void Emit(OpCode opCode, IMetadataTokenProvider metadataTokenProvider)
-        {
-            throw new NotSupportedException("IMetadataTokenProvider instructions (Ldtoken) are not supported.");
-        }
-
-        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "callSite", Justification = "Used in dinamic invoke")]
+        [SuppressMessage("Microsoft.Usage", "CA1801:ReviewUnusedParameters", MessageId = "callSite", Justification = "Not supported. parameter is not used and cannot be removed due dynamic dipatching.")]
         [UsedImplicitly]
         private void Emit(OpCode opCode, CallSite callSite)
         {

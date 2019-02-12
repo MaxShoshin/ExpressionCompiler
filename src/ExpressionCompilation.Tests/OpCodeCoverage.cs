@@ -31,7 +31,7 @@ namespace ExpressionCompilation.Tests
 
         [Theory(Skip = "Run manually, not all IL instructions were tested")]
         [MemberData(nameof(GetAllOpCodeTypes))]
-        public void ShouldCovereAllInstructions(OpCode opCode)
+        public void ShouldCoverAllInstructions(OpCode opCode)
         {
             CopiedInstructions.Contains(opCode.Name).Should().BeTrue($"OpCodes.{opCode.Name} missing in sample methods.");
         }

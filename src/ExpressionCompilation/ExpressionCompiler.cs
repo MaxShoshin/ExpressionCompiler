@@ -13,9 +13,8 @@ namespace ExpressionCompilation
 {
     public sealed class ExpressionCompiler
     {
-        public const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
-
         private const string MethodName = "ExpressionMethod";
+        private const string ExpressionCompilerAssemblyName = "ExpressionCompilerAssembly";
 
         [NotNull] private readonly List<ParameterDef> _parameters = new List<ParameterDef>();
         [NotNull] private readonly List<string> _usings = new List<string>();
@@ -30,7 +29,6 @@ namespace ExpressionCompilation
             if (expressionText == null) throw new ArgumentNullException(nameof(expressionText));
 
             _expressionText = expressionText;
-
             _compilerOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithOptimizationLevel(OptimizationLevel.Release);
 
@@ -71,12 +69,11 @@ namespace ExpressionCompilation
         }
 
         [NotNull]
-        public ExpressionCompiler WithUsing([NotNull] Type usingType)
+        public ExpressionCompiler WithUsing([NotNull] string namespaceImport)
         {
-            if (usingType == null) throw new ArgumentNullException(nameof(usingType));
-            if (usingType.Namespace == null) throw new ArgumentException("Using type has null namespace.", nameof(usingType));
+            if (namespaceImport == null) throw new ArgumentNullException(nameof(namespaceImport));
 
-            _usings.Add(usingType.Namespace);
+            _usings.Add(namespaceImport);
 
             return this;
         }
@@ -89,13 +86,6 @@ namespace ExpressionCompilation
             _referenceLocations.Add(assembly.Location);
 
             return this;
-        }
-
-        [NotNull]
-        public TDelegate Compile<TDelegate>()
-            where TDelegate : class // Delegate
-        {
-            return (TDelegate)(object)Compile(typeof(TDelegate));
         }
 
         [NotNull]
@@ -190,11 +180,8 @@ namespace ExpressionCompilation
         {
             public ParameterDef([NotNull] string name, [NotNull] Type type)
             {
-                if (name == null) throw new ArgumentNullException(nameof(name));
-                if (type == null) throw new ArgumentNullException(nameof(type));
-
-                Name = name;
-                Type = type;
+                Name = name ?? throw new ArgumentNullException(nameof(name));
+                Type = type ?? throw new ArgumentNullException(nameof(type));
             }
 
             [NotNull] public string Name { get; }

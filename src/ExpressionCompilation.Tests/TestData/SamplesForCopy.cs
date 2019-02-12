@@ -18,7 +18,7 @@ namespace ExpressionCompilation.Tests.TestData
             return false;
         }
 
-        public bool TryFinnaly()
+        public bool TryFinally()
         {
             try
             {
@@ -55,7 +55,7 @@ namespace ExpressionCompilation.Tests.TestData
             return array.GetLength(0) == 5;
         }
 
-        public bool RaieException()
+        public bool RaiseException()
         {
             throw new ExpectedException();
         }

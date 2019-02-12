@@ -23,7 +23,7 @@
         <PackageTags>roslyn expression parse dynamic method</PackageTags>
     </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" >
+    <PackageReference Include="JetBrains.Annotations" Version="11.1.0">
         <PrivateAssets>All</PrivateAssets>
         <ExcludeAssets>Runtime</ExcludeAssets>
     </PackageReference>
@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="2.7.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
     <PackageReference Include="Mono.Cecil" Version="0.10.0" />
-    <PackageReference Include="StyleCop.Analyzers.Error" Version="1.0.2" >
+    <PackageReference Include="StyleCop.Analyzers.Error" Version="1.0.2">
         <PrivateAssets>All</PrivateAssets>
         <ExcludeAssets>Runtime</ExcludeAssets>
     </PackageReference>
