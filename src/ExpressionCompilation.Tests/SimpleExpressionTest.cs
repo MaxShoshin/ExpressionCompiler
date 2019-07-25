@@ -23,67 +23,69 @@ namespace ExpressionCompilation.Tests
         [Fact]
         public void ShouldFilterWithItName()
         {
-            AssertFilter("it.Id == 2");
-        }
-
-        [Fact]
-        public void ShouldFilterWithFullLambdaSyntax()
-        {
-            AssertFilter("it.Id == 2");
+            AssertFilter("return it.Id == 2;");
         }
 
         [Fact]
         public void ShouldFilterWithBoxAndUnboxInExpression()
         {
-            AssertFilter("(int)(object)it.Id==2");
+            AssertFilter("return (int)(object)it.Id==2;");
         }
 
         [Fact]
         public void ShouldFilterWithCastEnumToInt()
         {
-            AssertFilter("(int)(it.State) == 1");
+            AssertFilter("return (int)(it.State) == 1;");
+        }
+
+        [Fact]
+        public void ShouldFilterWithStatements()
+        {
+            AssertFilter(
+                "var intVal = (int)it.State;",
+                "return intVal == 1;");
         }
 
         [Fact]
         public void ShouldFilterWithCastIntToInt()
         {
-            AssertFilter("(Int32)(it.Id) == 2");
+            AssertFilter("return (Int32)(it.Id) == 2;");
         }
 
         [Fact]
         public void ShouldFilterByDate()
         {
-            AssertFilter("it.Updated !=new DateTime(2017, 01, 01)");
+            AssertFilter("return it.Updated !=new DateTime(2017, 01, 01);");
         }
 
         [Fact]
         public void ShouldFilterByContains()
         {
-            AssertFilter("it.Note.Contains(\"Abc2\")");
+            AssertFilter("return it.Note.Contains(\"Abc2\");");
         }
 
         [Fact]
         public void ShouldFilterByIndexOf()
         {
-            AssertFilter("it.Note.IndexOf(\"Abc2\") != -1");
+            AssertFilter("return it.Note.IndexOf(\"Abc2\") != -1;");
         }
 
         [Fact]
         public void ShouldFilterWithNullComparison()
         {
-            AssertFilter("it.Note != null && it.Note.IndexOf(\"Abc2\") != -1");
+            AssertFilter("return it.Note != null && it.Note.IndexOf(\"Abc2\") != -1;");
         }
 
         [Fact]
         public void ShouldFilterByIndexOfCaseInsensitive()
         {
-            AssertFilter("it.Note.IndexOf(\"abc2\", StringComparison.OrdinalIgnoreCase) != -1");
+            AssertFilter("return it.Note.IndexOf(\"abc2\", StringComparison.OrdinalIgnoreCase) != -1;");
         }
 
         [Fact]
         public void ShouldFilterWithExtensionMethod()
         {
-            AssertFilter("it.GetId() == 2");
+            AssertFilter("return it.GetId() == 2;");
         }
 
         [Fact]
@@ -91,7 +93,7 @@ namespace ExpressionCompilation.Tests
         {
             try
             {
-                CreatePredicate("it.NotExitingProperty == 2");
+                CreatePredicate("return it.NotExitingProperty == 2;");
             }
             catch (CompilationErrorException ex)
             {
@@ -121,6 +123,9 @@ namespace ExpressionCompilation.Tests
                     .Append("))");
             }
 
+            expression.Insert(0, "return ");
+            expression.Append(";");
+
             AssertFilter(expression.ToString());
         }
 
@@ -130,7 +135,7 @@ namespace ExpressionCompilation.Tests
         {
             var expression = new StringBuilder();
 
-            expression.Append("(it.Id != -1)");
+            expression.Append("return (it.Id != -1)");
 
             for (int i = 0; i < count + 1; i++)
             {
@@ -144,13 +149,15 @@ namespace ExpressionCompilation.Tests
                     .Append(")");
             }
 
+            expression.Append(";");
+
             AssertFilter(expression.ToString());
         }
 
         [Fact]
         public void SimpleExample()
         {
-            Func<int> calculator = new ExpressionCompiler("1 + 1").Returns(typeof(int)).Compile<Func<int>>();
+            Func<int> calculator = new ExpressionCompiler("return 1 + 1;").Returns(typeof(int)).Compile<Func<int>>();
             calculator.Invoke().Should().Be(2);
         }
 
@@ -162,9 +169,9 @@ namespace ExpressionCompilation.Tests
             }
         }
 
-        private static void AssertFilter([NotNull] string condition)
+        private static void AssertFilter([NotNull] params string[] statements)
         {
-            var predicate = CreatePredicate(condition);
+            var predicate = CreatePredicate(statements);
 
             Assert.NotNull(predicate);
 
@@ -175,9 +182,9 @@ namespace ExpressionCompilation.Tests
         }
 
         [NotNull]
-        private static Func<Position, bool> CreatePredicate([NotNull] string condition)
+        private static Func<Position, bool> CreatePredicate([NotNull] params string[] statements)
         {
-            return (Func<Position, bool>)new ExpressionCompiler(condition)
+            return (Func<Position, bool>)new ExpressionCompiler(statements)
                 .WithParameter("it", typeof(Position))
                 .WithReference(Assembly.GetExecutingAssembly())
                 .WithUsing(typeof(DateTime))
@@ -190,11 +197,11 @@ namespace ExpressionCompilation.Tests
         {
             protected override void Start()
             {
-                AssertFilter("it.Id == 2");
+                AssertFilter("return it.Id == 2;");
 
                 var beforeCount = AppDomain.CurrentDomain.GetAssemblies().Length;
 
-                AssertFilter("((int)it.State) == 1");
+                AssertFilter("return ((int)it.State) == 1;");
 
                 var afterCount = AppDomain.CurrentDomain.GetAssemblies().Length;
 

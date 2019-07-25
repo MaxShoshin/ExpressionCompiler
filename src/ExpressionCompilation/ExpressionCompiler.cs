@@ -19,16 +19,15 @@ namespace ExpressionCompilation
         [NotNull] private readonly List<ParameterDef> _parameters = new List<ParameterDef>();
         [NotNull] private readonly List<string> _usings = new List<string>();
         [NotNull] private readonly List<string> _referenceLocations = new List<string>();
-        [NotNull] private readonly string _expressionText;
-
+        [NotNull] private readonly string[] _expressionStatementContents;
         [NotNull] private Type _returnType = typeof(void);
         [NotNull] private CSharpCompilationOptions _compilerOptions;
 
-        public ExpressionCompiler([NotNull] string expressionText)
+        public ExpressionCompiler([NotNull] params string[] expressionStatementContents)
         {
-            if (expressionText == null) throw new ArgumentNullException(nameof(expressionText));
+            _expressionStatementContents = expressionStatementContents ?? throw new ArgumentNullException(nameof(expressionStatementContents));
+            if (_expressionStatementContents.Length == 0) throw new ArgumentException("At least one expression statement should exists", nameof(expressionStatementContents));
 
-            _expressionText = expressionText;
             _compilerOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                 .WithOptimizationLevel(OptimizationLevel.Release);
 
@@ -69,11 +68,11 @@ namespace ExpressionCompilation
         }
 
         [NotNull]
-        public ExpressionCompiler WithUsing([NotNull] string namespaceImport)
+        public ExpressionCompiler WithUsing([NotNull] string @namespace)
         {
-            if (namespaceImport == null) throw new ArgumentNullException(nameof(namespaceImport));
+            if (@namespace == null) throw new ArgumentNullException(nameof(@namespace));
 
-            _usings.Add(namespaceImport);
+            _usings.Add(@namespace);
 
             return this;
         }
@@ -119,7 +118,7 @@ namespace ExpressionCompilation
 
                 var method = module.Types
                     .SelectMany(item => item.Methods)
-                    .Single(item => item.Name == MethodName);
+                    .Single(item => string.Equals(item.Name, MethodName, StringComparison.Ordinal));
 
                 var dynamicMethod = ILCopier.CopyToDynamicMethod(method);
                 return dynamicMethod.CreateDelegate(delegateType);
@@ -173,15 +172,18 @@ namespace ExpressionCompilation
                         .Parameter(SyntaxFactory.Identifier(parameterDef.Name))
                         .WithType(SyntaxFactory.ParseTypeName(TypeFormatter.Format(parameterDef.Type))))
                     .ToArray())
-                .WithBody(SyntaxFactory.Block(SyntaxFactory.ReturnStatement(SyntaxFactory.ParseExpression(_expressionText))));
+                .WithBody(SyntaxFactory.Block(_expressionStatementContents.Select(statement => SyntaxFactory.ParseStatement(statement))));
         }
 
         private sealed class ParameterDef
         {
             public ParameterDef([NotNull] string name, [NotNull] Type type)
             {
-                Name = name ?? throw new ArgumentNullException(nameof(name));
-                Type = type ?? throw new ArgumentNullException(nameof(type));
+                if (name == null) throw new ArgumentNullException(nameof(name));
+                if (type == null) throw new ArgumentNullException(nameof(type));
+
+                Name = name;
+                Type = type;
             }
 
             [NotNull] public string Name { get; }
