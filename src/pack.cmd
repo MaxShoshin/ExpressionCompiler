@@ -1,1 +1,0 @@
-dotnet pack -c Release /p:PackageVersion=0.1.2

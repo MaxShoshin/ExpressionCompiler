@@ -157,7 +157,11 @@ namespace NeedfulThings.ExpressionCompilation.Tests
         [Fact]
         public void SimpleExample()
         {
-            Func<int> calculator = new ExpressionCompiler("return 1 + 1;").Returns(typeof(int)).Compile<Func<int>>();
+            Func<int> calculator = new ExpressionCompiler("return (int)Math.Round(Math.PI - 1);")
+                .WithUsing("System")
+                .Returns(typeof(int))
+                .Compile<Func<int>>();
+
             calculator.Invoke().Should().Be(2);
         }
 

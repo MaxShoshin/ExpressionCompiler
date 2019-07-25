@@ -12,14 +12,11 @@
         <Title>Expression Compilation</Title>
         <Authors>Maxim Shoshin</Authors>
         <PackageSummary>Create DynamicMethod based on text expression. Supports full C# expression syntax.</PackageSummary>
-        <Description>Roslyn Scripting provide awesome compilation of any C# expression. Roslyn.Scripting has one disadwantage now: for any single script parse it creates separate assembly in current AppDomain. Now there is no ability to unload such assemblies even they are not used anymore.
-
-            ExpressionCompiler creates DynamicMethod based on your expression without loading additional assemblies in the app domain. DynamicMethod can be garbage collected as usual class when it no longer used.
-        </Description>
+        <Description>Create delegate from C# expression without loading additional assembly in AppDomain.</Description>
         <RepositoryUrl>https://github.com/MaxShoshin/ExpressionCompiler</RepositoryUrl>
         <PackageProjectUrl>https://github.com/MaxShoshin/ExpressionCompiler</PackageProjectUrl>
         <!--    <PackageIconUrl></PackageIconUrl> -->
-        <PackageLicenseUrl>https://raw.githubusercontent.com/MaxShoshin/ExpressionCompiler/master/LICENSE</PackageLicenseUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>roslyn expression parse dynamic method</PackageTags>
     </PropertyGroup>

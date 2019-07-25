@@ -8,6 +8,11 @@ ExpressionCompiler creates DynamicMethod based on your expression without loadin
 
 Usage:
 ```C#
-Func<int> calculator = new ExpressionCompiler("1 + 1").Returns(typeof(int)).Compile<Func<int>>();
-Console.WriteLine(calculator.Invoke()); // Prints 2
+Func<int> calculator = new ExpressionCompiler(
+        "return (int)Math.Round(Math.PI);")
+                .WithUsing("System")
+                .Returns(typeof(int))
+                .Compile<Func<int>>();
+
+Console.WriteLine(calculator.Invoke()); // Prints 3
 ```
