@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace ExpressionCompilation.Tests.TestData
+namespace NeedfulThings.ExpressionCompilation.Tests.TestData
 {
 #pragma warning disable CA2211 // Non-constant fields should not be visible
 #pragma warning disable SA1401 // Fields must be private

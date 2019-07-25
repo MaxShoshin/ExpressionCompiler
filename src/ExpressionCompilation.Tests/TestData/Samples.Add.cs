@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace ExpressionCompilation.Tests.TestData
+namespace NeedfulThings.ExpressionCompilation.Tests.TestData
 {
     public partial class SamplesForCopy
     {

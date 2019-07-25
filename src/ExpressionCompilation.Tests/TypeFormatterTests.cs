@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Xunit;
 
-namespace ExpressionCompilation.Tests
+namespace NeedfulThings.ExpressionCompilation.Tests
 {
     public sealed class TypeFormatterTests
     {

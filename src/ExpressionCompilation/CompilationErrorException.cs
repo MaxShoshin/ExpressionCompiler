@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Emit;
 using Formatter = Microsoft.CodeAnalysis.Formatting.Formatter;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     [Serializable]
     public sealed class CompilationErrorException : Exception

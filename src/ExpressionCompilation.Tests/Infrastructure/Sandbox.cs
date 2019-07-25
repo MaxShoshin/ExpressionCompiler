@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace ExpressionCompilation.Tests.Infrastructure
+namespace NeedfulThings.ExpressionCompilation.Tests.Infrastructure
 {
     internal abstract class Sandbox : MarshalByRefObject
     {

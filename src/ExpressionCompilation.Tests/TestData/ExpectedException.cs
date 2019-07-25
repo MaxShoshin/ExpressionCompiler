@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ExpressionCompilation.Tests.TestData
+namespace NeedfulThings.ExpressionCompilation.Tests.TestData
 {
     public sealed class ExpectedException : Exception
     {

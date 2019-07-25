@@ -2,12 +2,12 @@
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using ExpressionCompilation.Tests.TestData;
 using FluentAssertions;
 using JetBrains.Annotations;
+using NeedfulThings.ExpressionCompilation.Tests.TestData;
 using Xunit;
 
-namespace ExpressionCompilation.Tests
+namespace NeedfulThings.ExpressionCompilation.Tests
 {
     public sealed class OpCodeCoverage
     {

@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Mono.Cecil;
 using Xunit;
 
-namespace ExpressionCompilation.Tests
+namespace NeedfulThings.ExpressionCompilation.Tests
 {
     public sealed class ILCopierTests
     {

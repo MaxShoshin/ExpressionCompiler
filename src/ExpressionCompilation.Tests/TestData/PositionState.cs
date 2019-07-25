@@ -1,4 +1,4 @@
-﻿namespace ExpressionCompilation.Tests.TestData
+﻿namespace NeedfulThings.ExpressionCompilation.Tests.TestData
 {
     public enum PositionState
     {

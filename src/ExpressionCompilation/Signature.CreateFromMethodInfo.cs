@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     internal partial class Signature
     {

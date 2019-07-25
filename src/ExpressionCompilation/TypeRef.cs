@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     internal sealed class TypeRef : TypeRefBase
     {

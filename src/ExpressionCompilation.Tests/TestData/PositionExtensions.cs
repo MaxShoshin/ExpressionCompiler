@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace ExpressionCompilation.Tests.TestData
+namespace NeedfulThings.ExpressionCompilation.Tests.TestData
 {
     [UsedImplicitly]
     public static class PositionExtensions

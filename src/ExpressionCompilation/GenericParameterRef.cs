@@ -1,7 +1,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     internal sealed class GenericParameterRef : TypeRefBase
     {

@@ -10,7 +10,7 @@ using Mono.Cecil.Cil;
 using OpCode = System.Reflection.Emit.OpCode;
 using OpCodes = System.Reflection.Emit.OpCodes;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     internal sealed class ILCopier
     {

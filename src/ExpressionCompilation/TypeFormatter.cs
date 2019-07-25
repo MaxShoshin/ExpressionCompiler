@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     internal static class TypeFormatter
     {

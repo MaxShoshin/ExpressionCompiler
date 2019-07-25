@@ -5,7 +5,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Mono.Cecil;
 
-namespace ExpressionCompilation.Tests.TestData
+namespace NeedfulThings.ExpressionCompilation.Tests.TestData
 {
     public static class Sample
     {

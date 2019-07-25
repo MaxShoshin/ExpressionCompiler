@@ -6,7 +6,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Mono.Cecil;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     internal sealed class TypeReferenceMapper
     {

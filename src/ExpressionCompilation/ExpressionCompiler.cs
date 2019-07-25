@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Mono.Cecil;
 
-namespace ExpressionCompilation
+namespace NeedfulThings.ExpressionCompilation
 {
     public sealed class ExpressionCompiler
     {
